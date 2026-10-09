@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Invitation</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#2a1636;--ink:#fbf3e4;--paper:#fbf3e4;--pt:#2a1636;--pink:#ff5d8f;--gold:#f6c453;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1f102a}}
+:root[data-theme="dark"]{--bg:#1f102a}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;display:flex;align-items:center;justify-content:center;text-align:center}
+main{width:100%;max-width:420px;padding:24px}
+h1{font-size:2rem;font-weight:800;margin:0 0 8px;line-height:1.1}
+p{font-size:1.05rem;margin:0 0 20px;opacity:.92}
+.card{background:var(--paper);color:var(--pt);border-radius:14px;padding:26px 20px;margin:0 0 20px;border:3px dashed var(--pink)}
+.card h1{color:var(--pink)}
+.card p{margin:0 0 8px}
+.env{position:relative;width:240px;height:160px;margin:24px auto;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.env .back{position:absolute;inset:0;background:var(--gold);border-radius:8px}
+.env .flap{position:absolute;left:0;right:0;top:0;height:90px;background:#e0a92f;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .5s}
+.env .heart{position:absolute;left:50%;top:70px;margin-left:-16px;font-size:2rem}
+.env.open .flap{transform:rotateX(180deg)}
+.gift{display:block;margin:16px auto;font-size:5rem;line-height:1;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.shake{animation:s .25s}
+@keyframes s{25%{transform:translateX(-6px) rotate(-6deg)}75%{transform:translateX(6px) rotate(6deg)}}
+@media (prefers-reduced-motion:reduce){.env .flap{transition:none}.shake{animation:none}}
+input{width:100%;font:inherit;font-size:1.1rem;padding:14px;border-radius:10px;border:2px solid var(--gold);background:transparent;color:var(--ink);text-align:center}
+input:focus-visible,button:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+.btn{font:inherit;font-weight:800;font-size:1.05rem;margin-top:12px;padding:14px 26px;border:0;border-radius:10px;background:var(--pink);color:#fff;cursor:pointer}
+.link{background:none;border:0;color:var(--ink);opacity:.75;font:inherit;text-decoration:underline;margin-top:16px;cursor:pointer}
+.big{font-size:3rem}
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+<script>
+var FINAL="\uD83D\uDCCD 24 Franklin Ln, Apt 209, Manalapan, NJ";
+try{var h=decodeURIComponent(location.hash.slice(1));if(h)FINAL=h}catch(e){}
+var app=document.getElementById("app");
+function stage1(){
+  app.innerHTML='<h1>You have an invitation</h1><p>Tap the envelope to open it.</p><button class="env" id="e" aria-label="Envelope"><span class="back"></span><span class="heart">\uD83D\uDC8C</span><span class="flap"></span></button>';
+  var e=document.getElementById("e");
+  e.onclick=function(){e.classList.add("open");setTimeout(stage2,800)};
+}
+function stage2(){
+  var n=3;
+  app.innerHTML='<div class="card"><h1>House party!</h1><p>You are invited to a party at my place.</p><p><b>\uD83D\uDCC5 Sat, Oct 10, 6pm</b></p><p>The address is locked inside the gift.</p></div><p>Tap the gift <b id="n">3</b> times to unlock it.</p><button class="gift" id="g" aria-label="Gift">\uD83C\uDF81</button>';
+  var g=document.getElementById("g");
+  g.onclick=function(){
+    n--;g.classList.remove("shake");void g.offsetWidth;g.classList.add("shake");
+    document.getElementById("n").textContent=Math.max(n,0);
+    if(n<=0)setTimeout(stage3,500);
+  };
+}
+function stage3(){
+  app.innerHTML='<h1>One more thing</h1><p>Prove you are a real guest. What has keys but cannot open a door?</p><input id="a" autocomplete="off" autocapitalize="none" aria-label="Your answer" placeholder="Type your answer"><button class="btn" id="go">Get the address</button><br><button class="link" id="hint">Need a hint?</button><p id="msg" style="margin-top:14px"></p>';
+  var a=document.getElementById("a"),msg=document.getElementById("msg");
+  function check(){
+    var v=a.value.trim().toLowerCase();
+    if(v.indexOf("piano")>-1||v.indexOf("keyboard")>-1){stage4()}
+    else{msg.textContent="Not quite. Try again."}
+  }
+  document.getElementById("go").onclick=check;
+  a.onkeydown=function(e){if(e.key==="Enter")check()};
+  document.getElementById("hint").onclick=function(){msg.textContent="You can play music on it."};
+}
+function stage4(){
+  app.innerHTML='<div class="big">\uD83C\uDF89</div><h1>Correct!</h1><p>Your address is ready.</p><button class="btn" id="rev">Show me the address</button>';
+  document.getElementById("rev").onclick=function(){
+    app.innerHTML='<div class="big">\uD83D\uDCCD</div><h1>Finding the address...</h1>';
+    setTimeout(function(){
+      app.innerHTML='<h1></h1>';
+      app.firstChild.textContent=FINAL;
+    },1800);
+  };
+}
+stage1();
+</script>
+</body>
+</html>
